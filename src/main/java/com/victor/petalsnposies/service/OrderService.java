@@ -15,6 +15,11 @@ import com.victor.petalsnposies.model.Variant;
 import com.victor.petalsnposies.repository.FlowerRepository;
 import com.victor.petalsnposies.repository.OrderRepository;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
 @Service
 public class OrderService {
 
@@ -36,37 +41,80 @@ public class OrderService {
 			Flower flower = flowerRepository.findById(item.getFlowerId()).orElseThrow();
 			Variant variant = flower.findVariant(item.getVariantType());
 			
-//			 double unitPrice = flower.getPrice() + variant.getPriceAdd();
-//		        double lineTotal = unitPrice * item.getQuantity();
+			 double unitPrice =  variant.getPrice();
+		        double lineTotal = unitPrice * item.getQuantity();
 
 		        OrderItem orderItem = new OrderItem();
 		        orderItem.setFlowerId(flower.getId());
 		        orderItem.setFlowerName(flower.getName());
 		        orderItem.setVariantType(variant.getType());
-//		        orderItem.setUnitPrice(unitPrice);
+		        orderItem.setUnitPrice(unitPrice);
 		        orderItem.setQuantity(item.getQuantity());
-//		        orderItem.setLineTotal(lineTotal);
+		        orderItem.setLineTotal(lineTotal);
 		        orderItem.setOrder(order);
 
 		        items.add(orderItem);
-//		        total += lineTotal;
+		        total += lineTotal;
 		    }
 
 		    order.setOrderItems(items);
 		    order.setTotalPrice(total);
+		    order.setPaymentStatus("PENDING");
 
 		    return orderRepository.save(order);
 		}
 	
 	
-	public Order saveOrder(Order order) {
-		if(order.getOrderItems() != null ) {
-			for(OrderItem item : order.getOrderItems()) {
-				item.setOrder(order);
-			}
+	private String createStripeCheckoutSession(Order order) {
+		try {
+			SessionCreateParams.Builder builder = SessionCreateParams.builder()
+					.setMode(SessionCreateParams.Mode.PAYMENT)
+					.setSuccessUrl("http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}")
+	                .setCancelUrl("http://localhost:5173/cancel");
+
+	        for (OrderItem item : order.getOrderItems()) {
+	            builder.addLineItem(
+	                SessionCreateParams.LineItem.builder()
+	                    .setQuantity(item.getQuantity().longValue())
+	                    .setPriceData(
+	                        SessionCreateParams.LineItem.PriceData.builder()
+	                            .setCurrency("usd")
+	                            .setUnitAmount((long)(item.getUnitPrice() * 100)) // convert to cents
+	                            .setProductData(
+	                                SessionCreateParams.LineItem.PriceData.ProductData.builder()
+	                                    .setName(item.getFlowerName() + " - " + item.getVariantType())
+	                                    .build()
+	                            )
+	                            .build()
+	                    )
+	                    .build()
+	            );
+	        }
+	        Session session = Session.create(builder.build());
+	        order.setStripeSessionId(session.getId());
+	        orderRepository.save(order);
+			
+	        return session.getUrl();
+			
+		}catch(Exception e) {
+			throw new RuntimeException("Stripe session creation failed");
 		}
-		return orderRepository.save(order);
 	}
+	
+	
+	public String initiatePayment(Long orderId) {
+	    Order order = orderRepository.findById(orderId)
+	            .orElseThrow(() -> new RuntimeException("Order not found"));
+
+	    if ("PAID".equals(order.getPaymentStatus())) {
+	        throw new RuntimeException("Order already paid");
+	    }
+
+	    return createStripeCheckoutSession(order);
+	}
+	
+	
+	
 	
 	 public List<Order> getAllOrders() {
 	        return orderRepository.findAll();
