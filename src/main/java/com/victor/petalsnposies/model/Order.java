@@ -3,6 +3,7 @@ package com.victor.petalsnposies.model;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -26,9 +27,11 @@ public class Order {
 	private String deliveryDate;
 	private Double totalPrice;
 	
+	@Column(name = "stripe_session_id")
 	private String stripeSessionId;
 	private String paymentStatus; 
 	
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
 	List<OrderItem> orderItems;
+	
 }

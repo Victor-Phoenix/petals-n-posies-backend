@@ -19,7 +19,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import com.stripe.model.checkout.Session;
+import com.stripe.model.checkout.Session.AutomaticTax;
 import com.stripe.param.checkout.SessionCreateParams;
+import com.stripe.param.checkout.SessionCreateParams.BillingAddressCollection;
 @Service
 public class OrderService {
 
@@ -52,6 +54,7 @@ public class OrderService {
 		        orderItem.setQuantity(item.getQuantity());
 		        orderItem.setLineTotal(lineTotal);
 		        orderItem.setOrder(order);
+		        
 
 		        items.add(orderItem);
 		        total += lineTotal;
@@ -59,6 +62,8 @@ public class OrderService {
 
 		    order.setOrderItems(items);
 		    order.setTotalPrice(total);
+		    order.setCustomerName(dto.getCustomerName());
+		    order.setDeliveryDate(dto.getDeliveryDate());
 		    order.setPaymentStatus("PENDING");
 
 		    return orderRepository.save(order);
@@ -70,7 +75,12 @@ public class OrderService {
 			SessionCreateParams.Builder builder = SessionCreateParams.builder()
 					.setMode(SessionCreateParams.Mode.PAYMENT)
 					.setSuccessUrl("http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}")
-	                .setCancelUrl("http://localhost:5173/cancel");
+	                .setCancelUrl("http://localhost:5173/cancel")
+	                .setBillingAddressCollection(BillingAddressCollection.REQUIRED);
+			builder.setAutomaticTax(SessionCreateParams.AutomaticTax.builder()
+	                .setEnabled(true)
+	                .build());
+			
 
 	        for (OrderItem item : order.getOrderItems()) {
 	            builder.addLineItem(
@@ -79,7 +89,8 @@ public class OrderService {
 	                    .setPriceData(
 	                        SessionCreateParams.LineItem.PriceData.builder()
 	                            .setCurrency("usd")
-	                            .setUnitAmount((long)(item.getUnitPrice() * 100)) // convert to cents
+	                            .setUnitAmount((long)(item.getUnitPrice() * 100))
+	                            // convert to cents
 	                            .setProductData(
 	                                SessionCreateParams.LineItem.PriceData.ProductData.builder()
 	                                    .setName(item.getFlowerName() + " - " + item.getVariantType())
@@ -92,6 +103,8 @@ public class OrderService {
 	        }
 	        Session session = Session.create(builder.build());
 	        order.setStripeSessionId(session.getId());
+	        System.out.println("Created session ID: " + session.getId());
+
 	        orderRepository.save(order);
 			
 	        return session.getUrl();

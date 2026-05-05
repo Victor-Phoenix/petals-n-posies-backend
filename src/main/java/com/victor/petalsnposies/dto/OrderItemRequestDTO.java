@@ -11,4 +11,5 @@ public class OrderItemRequestDTO {
     private Long flowerId;
     private String variantType;
     private Integer quantity;
+
 }

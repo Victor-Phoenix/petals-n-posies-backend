@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class OrderRequestDTO {
-	  private String deliveryDate;
+	  private String deliveryDate;	
+	  private String customerName;
 	    private List<OrderItemRequestDTO> items;
 }

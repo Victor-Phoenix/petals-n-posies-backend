@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.victor.petalsnposies.dto.FlowerRequestDTO;
+import com.victor.petalsnposies.dto.FlowerResponseDTO;
 import com.victor.petalsnposies.model.Flower;
 import com.victor.petalsnposies.service.FlowerService;
 
@@ -27,30 +29,32 @@ public class FlowerController {
 	}
 	
 	@PostMapping("/addFlower")
-	public Flower addFlower(@RequestBody Flower flower) {
+	public Flower addFlower(@RequestBody FlowerRequestDTO flower) {
 		return flowerService.saveFlower(flower);
 	}
+	
 	@GetMapping("/getAll")
-	public List<Flower> getAllFlower(){
+	public List<FlowerResponseDTO> getAllFlower(){
 		return flowerService.getAllFlower();
 	}
+	
 	@GetMapping("/{id}")
-	public Flower getFlowerById(@PathVariable Long id) {
+	public FlowerResponseDTO getFlowerById(@PathVariable Long id) {
 		return flowerService.getById(id);
 	}
+	
 	@DeleteMapping("/delete/{id}")
 	public void deleteById(@PathVariable Long id) {
-		flowerService.deleteById(id);
-		
+		flowerService.deleteById(id);	
 	}
 
 	@DeleteMapping()
 	public void deleteAll() {
 		flowerService.deleteAll();
-		
 	}
-	@PutMapping("/update")
-	public void updateFlower(@RequestBody Flower flower) {
-		flowerService.updateFlower(flower);
-	}
+	
+//	@PutMapping("/update")
+//	public void updateFlower(@RequestBody FlowerRequestDTO flower) {
+//		flowerService.updateFlower(flower);
+//	}
 }	
