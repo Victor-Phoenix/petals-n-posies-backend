@@ -22,6 +22,8 @@ import com.stripe.model.checkout.Session;
 import com.stripe.model.checkout.Session.AutomaticTax;
 import com.stripe.param.checkout.SessionCreateParams;
 import com.stripe.param.checkout.SessionCreateParams.BillingAddressCollection;
+import com.stripe.param.checkout.SessionCreateParams.ShippingAddressCollection;
+import com.stripe.param.checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry;
 @Service
 public class OrderService {
 
@@ -76,11 +78,14 @@ public class OrderService {
 					.setMode(SessionCreateParams.Mode.PAYMENT)
 					.setSuccessUrl("http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}")
 	                .setCancelUrl("http://localhost:5173/cancel")
-	                .setBillingAddressCollection(BillingAddressCollection.REQUIRED);
+	                .setBillingAddressCollection(BillingAddressCollection.REQUIRED)
+					.setShippingAddressCollection(SessionCreateParams.ShippingAddressCollection.builder().addAllowedCountry(AllowedCountry.US).build());
 			builder.setAutomaticTax(SessionCreateParams.AutomaticTax.builder()
 	                .setEnabled(true)
 	                .build());
-			
+					builder.setPhoneNumberCollection(SessionCreateParams.PhoneNumberCollection.builder().setEnabled(true).build());
+					
+					
 
 	        for (OrderItem item : order.getOrderItems()) {
 	            builder.addLineItem(

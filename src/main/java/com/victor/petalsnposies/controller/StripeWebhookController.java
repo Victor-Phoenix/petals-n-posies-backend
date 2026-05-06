@@ -40,6 +40,7 @@ public class StripeWebhookController {
             Session session = (Session) event.getDataObjectDeserializer()
                     .getObject()
                     .orElse(null);
+            Session.CollectedInformation collected = session.getCollectedInformation();
             System.out.println("Webhook session ID: " + session.getId());
 
             if (session != null) {
