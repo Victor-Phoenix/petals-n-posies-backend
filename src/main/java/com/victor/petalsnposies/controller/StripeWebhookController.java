@@ -41,10 +41,13 @@ public class StripeWebhookController {
                     .getObject()
                     .orElse(null);
             Session.CollectedInformation collected = session.getCollectedInformation();
-            System.out.println("Webhook session ID: " + session.getId());
-
+            System.out.println("Webhook session ID: " + session.getId());	
+            Session.CustomerDetails customerDetails = session.getCustomerDetails();
+            String customerName = customerDetails.getName();
             if (session != null) {
                 Order order = orderRepository.findByStripeSessionId(session.getId());
+                // TODO: Make OrderService populate order with correct information
+                order.setCustomerName(customerName);
                 if (order != null) {
                     order.setPaymentStatus("PAID");
                     orderRepository.save(order);

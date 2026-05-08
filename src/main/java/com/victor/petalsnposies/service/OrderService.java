@@ -123,6 +123,7 @@ public class OrderService {
 	public String initiatePayment(Long orderId) {
 	    Order order = orderRepository.findById(orderId)
 	            .orElseThrow(() -> new RuntimeException("Order not found"));
+	    
 
 	    if ("PAID".equals(order.getPaymentStatus())) {
 	        throw new RuntimeException("Order already paid");
