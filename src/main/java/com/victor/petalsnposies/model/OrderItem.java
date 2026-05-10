@@ -1,5 +1,7 @@
 package com.victor.petalsnposies.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -13,18 +15,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderItem {
-	   @Id
-	    @GeneratedValue
-	    private Long id;
+	@Id
+	@GeneratedValue
+	private Long id;
 
-	    private Long flowerId;
-	    private String flowerName;
-	    private String variantType;
-	    private Double unitPrice;
-	    private Integer quantity;
-	    private Double lineTotal;
+	private Long flowerId;
+	private String flowerName;
+	private String variantType;
+	private Double unitPrice;
+	private Integer quantity;
+	private Double lineTotal;
 
-	    @ManyToOne
-	    private Order order;
-	
+	@ManyToOne
+	@JsonBackReference
+	private Order order;
+
 }

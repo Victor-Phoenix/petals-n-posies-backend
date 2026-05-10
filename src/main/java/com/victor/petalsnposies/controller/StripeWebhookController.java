@@ -44,10 +44,21 @@ public class StripeWebhookController {
             System.out.println("Webhook session ID: " + session.getId());	
             Session.CustomerDetails customerDetails = session.getCustomerDetails();
             String customerName = customerDetails.getName();
+            String shippingAddress = collected.getShippingDetails().getAddress().getLine1();
+            String shippingCity= collected.getShippingDetails().getAddress().getCity();
+            String shippingState= collected.getShippingDetails().getAddress().getState();
+            String shippingPostalCode = collected.getShippingDetails().getAddress().getPostalCode();
+            System.out.printf("Name %s%n Address %s%n City %s%n State %s%n Postal %s%n " , customerName, shippingAddress, shippingCity, shippingState, shippingPostalCode);
+            
             if (session != null) {
-                Order order = orderRepository.findByStripeSessionId(session.getId());
+                Order order = orderRepository.findByStripeSessionId(session.getId()).orElseThrow(()-> new RuntimeException("Resource not Found"));
                 // TODO: Make OrderService populate order with correct information
                 order.setCustomerName(customerName);
+                order.setShippingLine(shippingAddress);
+                order.setShippingCity(shippingCity);
+                order.setShippingState(shippingState);
+                order.setShippingPostalCode(shippingPostalCode);
+                
                 if (order != null) {
                     order.setPaymentStatus("PAID");
                     orderRepository.save(order);

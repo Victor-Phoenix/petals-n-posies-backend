@@ -3,9 +3,14 @@ package com.victor.petalsnposies.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
+import com.stripe.param.checkout.SessionCreateParams.BillingAddressCollection;
+import com.stripe.param.checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry;
 import com.victor.petalsnposies.dto.OrderItemRequestDTO;
 import com.victor.petalsnposies.dto.OrderRequestDTO;
 import com.victor.petalsnposies.model.Flower;
@@ -14,16 +19,6 @@ import com.victor.petalsnposies.model.OrderItem;
 import com.victor.petalsnposies.model.Variant;
 import com.victor.petalsnposies.repository.FlowerRepository;
 import com.victor.petalsnposies.repository.OrderRepository;
-
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import com.stripe.model.checkout.Session;
-import com.stripe.model.checkout.Session.AutomaticTax;
-import com.stripe.param.checkout.SessionCreateParams;
-import com.stripe.param.checkout.SessionCreateParams.BillingAddressCollection;
-import com.stripe.param.checkout.SessionCreateParams.ShippingAddressCollection;
-import com.stripe.param.checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry;
 @Service
 public class OrderService {
 
@@ -141,5 +136,12 @@ public class OrderService {
 
 	    public Order getOrder(Long id) {
 	        return orderRepository.findById(id).orElse(null);
+	    }
+	    
+	    public Order getOrderBySessionId(String stripeSessionId) {
+	    	
+	    		Order res = orderRepository.findByStripeSessionId(stripeSessionId).orElseThrow(()-> new RuntimeException("Could not find resource"));    
+	    		
+	    	return res;
 	    }
 }

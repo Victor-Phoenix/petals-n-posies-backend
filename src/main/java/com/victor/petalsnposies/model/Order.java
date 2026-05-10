@@ -2,6 +2,8 @@ package com.victor.petalsnposies.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,8 +32,17 @@ public class Order {
 	@Column(name = "stripe_session_id")
 	private String stripeSessionId;
 	private String paymentStatus; 
+	private String shippingLine;
+	private String shippingState;
+	private String shippingCity;
+	private String shippingPostalCode;
+	
+	
+	
 	
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+	@JsonManagedReference
 	List<OrderItem> orderItems;
+	
 	
 }
