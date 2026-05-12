@@ -32,7 +32,6 @@ public class Flower {
 	
 	String name;
 	
-	String imageUrl;
 	
 	
 	@OneToMany(mappedBy = "flower", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -40,7 +39,7 @@ public class Flower {
 	@OrderColumn(name = "variant_order")
 	List<Variant> variants;
 	
-	String SKU;
+	String sku;
 
 	
 	@ElementCollection

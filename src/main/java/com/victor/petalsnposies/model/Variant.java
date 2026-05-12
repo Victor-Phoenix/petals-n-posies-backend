@@ -28,7 +28,7 @@ public class Variant {
 	private String type;
 	private double price;
 	private String description;
-	
+	private String imageUrl;
 	@ManyToOne
 	@JoinColumn(name="flower_id")
 	@JsonBackReference

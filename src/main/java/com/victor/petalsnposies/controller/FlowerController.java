@@ -53,8 +53,8 @@ public class FlowerController {
 		flowerService.deleteAll();
 	}
 	
-//	@PutMapping("/update")
-//	public void updateFlower(@RequestBody FlowerRequestDTO flower) {
-//		flowerService.updateFlower(flower);
-//	}
+	@PutMapping("/update")
+	public void updateFlower(@RequestBody FlowerRequestDTO flower) {
+		flowerService.updateFlower(flower);
+	}
 }	

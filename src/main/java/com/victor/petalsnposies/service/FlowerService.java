@@ -56,13 +56,14 @@ public class FlowerService {
 		FlowerResponseDTO dto = new FlowerResponseDTO();
 		dto.setId(flower.getId());
 		dto.setName(flower.getName());
-		dto.setImageUrl(flower.getImageUrl());
+		
 		dto.setCategories(flower.getCategories());
 		
 		List<Variant> var = flower.getVariants();
 		List<VariantResponseDTO> variantDTOList = new ArrayList<VariantResponseDTO>();
 		for(Variant element : var) {
 			VariantResponseDTO variantDTO = new VariantResponseDTO();
+			variantDTO.setImageUrl(element.getImageUrl())	;
 			variantDTO.setType(element.getType());
 			variantDTO.setPrice(element.getPrice());
 			variantDTO.setDescription(element.getDescription());
@@ -76,15 +77,15 @@ public class FlowerService {
 		Flower flower = new Flower();
 		List<Variant> variants = new ArrayList<>();
 		flower.setName(dto.getName());
-		flower.setImageUrl(dto.getImageUrl());
-		
-		flower.setSKU(dto.getSku());
+	
+		flower.setSku(dto.getSku());
 		
 		validCategory(dto.getCategories());
 		flower.setCategories(dto.getCategories());
 		
 		for(VariantRequestDTO element : dto.getVariants()) {
 			Variant varaint = new Variant();
+			varaint.setImageUrl(element.getImageUrl());
 			varaint.setType(element.getType());
 			varaint.setPrice(element.getPrice());
 			varaint.setDescription(element.getDescription());
@@ -102,13 +103,12 @@ public class FlowerService {
 	    return flowerRepo.save(toEntity(flower));
 	}
 	
-		public Flower updateFlower(Flower flower) {
+		public Flower updateFlower(FlowerRequestDTO flower) {
 			Flower existingFlower = flowerRepo.findById(flower.getId()).orElseThrow(()-> new RuntimeException("Resoure not found"));
 				
 				existingFlower.setName(flower.getName());
-				existingFlower.setImageUrl(flower.getImageUrl());
 				
-				existingFlower.setSKU(flower.getSKU());
+				existingFlower.setSku(flower.getSku());
 				existingFlower.setCategories(flower.getCategories());
 			
 				flower.getVariants().sort((a,b)-> orderOf(a.getType()) - orderOf(b.getType()) );
@@ -117,9 +117,14 @@ public class FlowerService {
 			    List<Variant> existingVariants = existingFlower.getVariants();
 			    existingVariants.clear(); // remove old ones safely
 				
-			    for (Variant v : flower.getVariants()) {
-			        v.setFlower(existingFlower); // maintain relationship
-			        existingVariants.add(v);  // add to existing list
+			    for (VariantRequestDTO v : flower.getVariants()) {
+			    		Variant variant = new Variant();          // create entity, not DTO
+			         variant.setType(v.getType());
+			         variant.setPrice(v.getPrice());
+			         variant.setImageUrl(v.getImageUrl());
+			         variant.setDescription(v.getDescription());
+			         variant.setFlower(existingFlower);        // set the relationship
+			         existingVariants.add(variant);       
 			    }
 			return flowerRepo.save(existingFlower);
 		}

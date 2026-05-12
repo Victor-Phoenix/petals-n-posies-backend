@@ -11,7 +11,7 @@ public class FlowerResponseDTO {
 
 	private Long id;
     private String name;
-    private String imageUrl;
+
     private List<String> categories;
     private List<VariantResponseDTO> variants;
 }

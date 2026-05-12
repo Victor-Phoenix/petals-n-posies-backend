@@ -9,4 +9,5 @@ public class VariantResponseDTO {
 	private String type;
 	private double price;
 	private String description;
+	private String imageUrl;
 }
