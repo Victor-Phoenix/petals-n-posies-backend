@@ -27,45 +27,7 @@ public class OrderService {
 	public OrderService(OrderRepository orderRepository, FlowerRepository flowerRepository) {
 		this.orderRepository = orderRepository;
 		this.flowerRepository = flowerRepository;
-	}
-	
-	public Order createOrder(OrderRequestDTO dto) {
-		Order order = new Order();
-		List<OrderItem> items = new ArrayList<>();
-		
-		double total = 0;
-		
-		for(OrderItemRequestDTO item: dto.getItems()) {
-			
-			Flower flower = flowerRepository.findById(item.getFlowerId()).orElseThrow();
-			Variant variant = flower.findVariant(item.getVariantType());
-			
-			 double unitPrice =  variant.getPrice();
-		        double lineTotal = unitPrice * item.getQuantity();
-
-		        OrderItem orderItem = new OrderItem();
-		        orderItem.setFlowerId(flower.getId());
-		        orderItem.setFlowerName(flower.getName());
-		        orderItem.setVariantType(variant.getType());
-		        orderItem.setUnitPrice(unitPrice);
-		        orderItem.setQuantity(item.getQuantity());
-		        orderItem.setLineTotal(lineTotal);
-		        orderItem.setOrder(order);
-		        
-
-		        items.add(orderItem);
-		        total += lineTotal;
-		    }
-
-		    order.setOrderItems(items);
-		    order.setTotalPrice(total);
-		    order.setCustomerName(dto.getCustomerName());
-		    order.setDeliveryDate(dto.getDeliveryDate());
-		    order.setPaymentStatus("PENDING");
-
-		    return orderRepository.save(order);
-		}
-	
+	}	
 	
 	private String createStripeCheckoutSession(Order order) {
 		try {
@@ -103,8 +65,7 @@ public class OrderService {
 	        }
 	        Session session = Session.create(builder.build());
 	        order.setStripeSessionId(session.getId());
-	        System.out.println("Created session ID: " + session.getId());
-
+	    
 	        orderRepository.save(order);
 			
 	        return session.getUrl();
@@ -115,12 +76,51 @@ public class OrderService {
 	}
 	
 	
+	//Method used in Cart in frontend to create shippingOrder in Stripe checkout
+	public Order createOrder(OrderRequestDTO dto) {
+		Order order = new Order();
+		List<OrderItem> items = new ArrayList<>();
+		
+		double total = 0;
+		
+		for(OrderItemRequestDTO item: dto.getItems()) {
+			
+			Flower flower = flowerRepository.findById(item.getFlowerId()).orElseThrow();
+			Variant variant = flower.findVariant(item.getVariantType());
+			
+			 double unitPrice =  variant.getPrice();
+		        double lineTotal = unitPrice * item.getQuantity();
+
+		        OrderItem orderItem = new OrderItem();
+		        orderItem.setFlowerId(flower.getId());
+		        orderItem.setFlowerName(flower.getName());
+		        orderItem.setVariantType(variant.getType());
+		        orderItem.setUnitPrice(unitPrice);
+		        orderItem.setQuantity(item.getQuantity());
+		        orderItem.setLineTotal(lineTotal);
+		        orderItem.setOrder(order);
+		        
+
+		        items.add(orderItem);
+		        total += lineTotal;
+		    }
+
+		    order.setOrderItems(items);
+		    order.setTotalPrice(total);
+			// Customer name is saved in cart
+		    //		    order.setCustomerName(dto.getCustomerName());
+		    
+//		    if(dto.getDeliveryDate() )
+		    order.setDeliveryDate(dto.getDeliveryDate());
+		    order.setPaymentStatus("PENDING");
+
+		    return orderRepository.save(order);
+		}
+	
 	public String initiatePayment(Long orderId) {
 	    Order order = orderRepository.findById(orderId)
 	            .orElseThrow(() -> new RuntimeException("Order not found"));
-	    
-
-	    if ("PAID".equals(order.getPaymentStatus())) {
+	    	    if ("PAID".equals(order.getPaymentStatus())) {
 	        throw new RuntimeException("Order already paid");
 	    }
 

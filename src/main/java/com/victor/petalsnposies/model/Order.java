@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -25,17 +27,25 @@ public class Order {
 	@GeneratedValue()
 	private Long id;
 	
-	private String customerName;
+	private String customerFirstName;
+	private String customerLastName;
+
 	private String deliveryDate;
 	private Double totalPrice;
+	
+	@Enumerated(EnumType.STRING)
+	private OrderStatus 	OrderStatus;
 	
 	@Column(name = "stripe_session_id")
 	private String stripeSessionId;
 	private String paymentStatus; 
+	private String recipient; 
 	private String shippingLine;
-	private String shippingState;
 	private String shippingCity;
+	private String shippingState;
 	private String shippingPostalCode;
+	private String shippingCountry;
+	private String phoneNumer;
 	
 	
 	
