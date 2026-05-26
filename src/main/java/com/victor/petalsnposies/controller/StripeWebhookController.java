@@ -54,7 +54,7 @@ public class StripeWebhookController {
                 Order order = orderRepository.findByStripeSessionId(session.getId()).orElseThrow(()-> new RuntimeException("Resource not Found"));
                 // TODO: Make OrderService populate order with correct information
                 order.setCustomerName(customerName);
-                order.setShippingLine(shippingAddress);
+                order.setShippingAddress(shippingAddress);
                 order.setShippingCity(shippingCity);
                 order.setShippingState(shippingState);
                 order.setShippingPostalCode(shippingPostalCode);

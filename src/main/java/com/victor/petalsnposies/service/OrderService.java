@@ -3,7 +3,6 @@ package com.victor.petalsnposies.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -20,6 +19,7 @@ import com.victor.petalsnposies.model.Variant;
 import com.victor.petalsnposies.repository.FlowerRepository;
 import com.victor.petalsnposies.repository.OrderRepository;
 @Service
+
 public class OrderService {
 
 	private final OrderRepository orderRepository;
@@ -28,120 +28,121 @@ public class OrderService {
 		this.orderRepository = orderRepository;
 		this.flowerRepository = flowerRepository;
 	}	
-	
+
 	private String createStripeCheckoutSession(Order order) {
 		try {
 			SessionCreateParams.Builder builder = SessionCreateParams.builder()
 					.setMode(SessionCreateParams.Mode.PAYMENT)
 					.setSuccessUrl("http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}")
-	                .setCancelUrl("http://localhost:5173/cancel")
-	                .setBillingAddressCollection(BillingAddressCollection.REQUIRED)
+					.setCancelUrl("http://localhost:5173/cancel")
+					.setBillingAddressCollection(BillingAddressCollection.REQUIRED)
 					.setShippingAddressCollection(SessionCreateParams.ShippingAddressCollection.builder().addAllowedCountry(AllowedCountry.US).build());
 			builder.setAutomaticTax(SessionCreateParams.AutomaticTax.builder()
-	                .setEnabled(true)
-	                .build());
-					builder.setPhoneNumberCollection(SessionCreateParams.PhoneNumberCollection.builder().setEnabled(true).build());
-					
-					
+					.setEnabled(true)
+					.build());
+			builder.setPhoneNumberCollection(SessionCreateParams.PhoneNumberCollection.builder().setEnabled(true).build());
 
-	        for (OrderItem item : order.getOrderItems()) {
-	            builder.addLineItem(
-	                SessionCreateParams.LineItem.builder()
-	                    .setQuantity(item.getQuantity().longValue())
-	                    .setPriceData(
-	                        SessionCreateParams.LineItem.PriceData.builder()
-	                            .setCurrency("usd")
-	                            .setUnitAmount((long)(item.getUnitPrice() * 100))
-	                            // convert to cents
-	                            .setProductData(
-	                                SessionCreateParams.LineItem.PriceData.ProductData.builder()
-	                                    .setName(item.getFlowerName() + " - " + item.getVariantType())
-	                                    .build()
-	                            )
-	                            .build()
-	                    )
-	                    .build()
-	            );
-	        }
-	        Session session = Session.create(builder.build());
-	        order.setStripeSessionId(session.getId());
-	    
-	        orderRepository.save(order);
-			
-	        return session.getUrl();
-			
+
+
+			for (OrderItem item : order.getOrderItems()) {
+				builder.addLineItem(
+						SessionCreateParams.LineItem.builder()
+						.setQuantity(item.getQuantity().longValue())
+						.setPriceData(
+								SessionCreateParams.LineItem.PriceData.builder()
+								.setCurrency("usd")
+								.setUnitAmount((long)(item.getUnitPrice() * 100))
+								// convert to cents
+								.setProductData(
+										SessionCreateParams.LineItem.PriceData.ProductData.builder()
+										.setName(item.getFlowerName() + " - " + item.getVariantType())
+										.build()
+										)
+								.build()
+								)
+						.build()
+						);
+			}
+			Session session = Session.create(builder.build());
+			order.setStripeSessionId(session.getId());
+
+			orderRepository.save(order);
+
+			return session.getUrl();
+
 		}catch(Exception e) {
 			throw new RuntimeException("Stripe session creation failed");
 		}
 	}
-	
-	
+
+
 	//Method used in Cart in frontend to create shippingOrder in Stripe checkout
 	public Order createOrder(OrderRequestDTO dto) {
 		Order order = new Order();
 		List<OrderItem> items = new ArrayList<>();
-		
+
 		double total = 0;
-		
+
 		for(OrderItemRequestDTO item: dto.getItems()) {
-			
+
 			Flower flower = flowerRepository.findById(item.getFlowerId()).orElseThrow();
 			Variant variant = flower.findVariant(item.getVariantType());
-			
-			 double unitPrice =  variant.getPrice();
-		        double lineTotal = unitPrice * item.getQuantity();
 
-		        OrderItem orderItem = new OrderItem();
-		        orderItem.setFlowerId(flower.getId());
-		        orderItem.setFlowerName(flower.getName());
-		        orderItem.setVariantType(variant.getType());
-		        orderItem.setUnitPrice(unitPrice);
-		        orderItem.setQuantity(item.getQuantity());
-		        orderItem.setLineTotal(lineTotal);
-		        orderItem.setOrder(order);
-		        
+			double unitPrice =  variant.getPrice();
+			double lineTotal = unitPrice * item.getQuantity();
 
-		        items.add(orderItem);
-		        total += lineTotal;
-		    }
+			OrderItem orderItem = new OrderItem();
+			orderItem.setFlowerId(flower.getId());
+			orderItem.setFlowerName(flower.getName());
+			orderItem.setVariantType(variant.getType());
+			orderItem.setUnitPrice(unitPrice);
+			orderItem.setQuantity(item.getQuantity());
+			orderItem.setLineTotal(lineTotal);
+			orderItem.setOrder(order);
 
-		    order.setOrderItems(items);
-		    order.setTotalPrice(total);
-			// Customer name is saved in cart
-		    //		    order.setCustomerName(dto.getCustomerName());
-		    
-//		    if(dto.getDeliveryDate() )
-		    order.setDeliveryDate(dto.getDeliveryDate());
-		    order.setPaymentStatus("PENDING");
 
-		    return orderRepository.save(order);
+			items.add(orderItem);
+			total += lineTotal;
 		}
-	
-	public String initiatePayment(Long orderId) {
-	    Order order = orderRepository.findById(orderId)
-	            .orElseThrow(() -> new RuntimeException("Order not found"));
-	    	    if ("PAID".equals(order.getPaymentStatus())) {
-	        throw new RuntimeException("Order already paid");
-	    }
 
-	    return createStripeCheckoutSession(order);
+		order.setOrderItems(items);
+		order.setTotalPrice(total);
+		// Customer name is saved in cart
+		//		    order.setCustomerName(dto.getCustomerName());
+
+		if(dto.getDeliveryDate() != null ){
+			order.setDeliveryDate(dto.getDeliveryDate());
+			order.setPaymentStatus("PENDING");
+		}
+		return orderRepository.save(order);
+	}
+
+	public String initiatePayment(Long orderId) {
+		Order order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new RuntimeException("Order not found"));
+		if ("PAID".equals(order.getPaymentStatus())) {
+			throw new RuntimeException("Order already paid");
+		}
+
+		return createStripeCheckoutSession(order);
+	}
+
+
+
+
+	public List<Order> getAllOrders() {
+		return orderRepository.findAll();
+	}
+
+	public Order getOrder(Long id) {
+		return orderRepository.findById(id).orElse(null);
+	}
+
+	public Order getOrderBySessionId(String stripeSessionId) {
+
+		Order res = orderRepository.findByStripeSessionId(stripeSessionId).orElseThrow(()-> new RuntimeException("Could not find resource"));    
+
+		return res;
 	}
 	
-	
-	
-	
-	 public List<Order> getAllOrders() {
-	        return orderRepository.findAll();
-	    }
-
-	    public Order getOrder(Long id) {
-	        return orderRepository.findById(id).orElse(null);
-	    }
-	    
-	    public Order getOrderBySessionId(String stripeSessionId) {
-	    	
-	    		Order res = orderRepository.findByStripeSessionId(stripeSessionId).orElseThrow(()-> new RuntimeException("Could not find resource"));    
-	    		
-	    	return res;
-	    }
 }
