@@ -23,21 +23,21 @@ public class MailService {
 //    }
 
 	public void sendPlainText(EmailRequestDTO emailRequest) {
-		SimpleMailMessage message = new SimpleMailMessage();
-		message.setTo(emailRequest.getTo());
-		message.setSubject(emailRequest.getSubject());
-		message.setText(emailRequest.getBody());
-		mailSender.send(message);
+//		SimpleMailMessage message = new SimpleMailMessage();
+//		message.setTo(emailRequest.getTo());
+//		message.setSubject(emailRequest.getSubject());
+//		message.setText(emailRequest.getBody());
+//		mailSender.send(message);
 		
 	}
 	
 	public void sendHtml(String to, String subject, String htmlBody) throws MessagingException{
-		MimeMessage message = mailSender.createMimeMessage();
-		MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
-		helper.setTo(to);
-		helper.setSubject(subject);
-		helper.setText(htmlBody,true);
-		mailSender.send(message);
+//		MimeMessage message = mailSender.createMimeMessage();
+//		MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+//		helper.setTo(to);
+//		helper.setSubject(subject);
+//		helper.setText(htmlBody,true);
+//		mailSender.send(message);
 		
 	}
 }
