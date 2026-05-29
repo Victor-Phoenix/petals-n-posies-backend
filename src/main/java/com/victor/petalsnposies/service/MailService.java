@@ -23,11 +23,26 @@ public class MailService {
 //    }
 
 	public void sendPlainText(EmailRequestDTO emailRequest) {
-//		SimpleMailMessage message = new SimpleMailMessage();
+		SimpleMailMessage message = new SimpleMailMessage();
+		
 //		message.setTo(emailRequest.getTo());
 //		message.setSubject(emailRequest.getSubject());
 //		message.setText(emailRequest.getBody());
-//		mailSender.send(message);
+		String body =  "Email: " + emailRequest.getEmail() +"\n";
+		body = body + "Name: "+ emailRequest.getName() + "\n";
+		
+		body = body + "Event Date: "+ emailRequest.getEventDate() + "\n";
+	
+		body = body + "Venue : "+ emailRequest.getVenue()+ "\n";
+		
+		body = body + "Message: "+ emailRequest.getMessage() + "\n";
+		
+		message.setText(body);
+		message.setFrom("victortran16@gmail.com");
+		message.setTo("victortran16@gmail.com");
+		System.out.println(body);
+	
+		mailSender.send(message);
 		
 	}
 	

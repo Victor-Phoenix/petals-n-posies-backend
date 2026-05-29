@@ -21,7 +21,8 @@ public class EmailController {
 	public EmailRequestDTO sendEmail( @RequestBody EmailRequestDTO request) {
 		
 		System.out.println(request);
-//		mailService.sendPlainText(request);
+	
+		mailService.sendPlainText(request);
 		return request;
 	}
 }
