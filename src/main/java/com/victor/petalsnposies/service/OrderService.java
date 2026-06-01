@@ -112,8 +112,8 @@ public class OrderService {
 
 		if(dto.getDeliveryDate() != null ){
 			order.setDeliveryDate(dto.getDeliveryDate());
-			order.setPaymentStatus("PENDING");
 		}
+		order.setPaymentStatus("PENDING");
 		return orderRepository.save(order);
 	}
 
@@ -131,7 +131,10 @@ public class OrderService {
 
 
 	public List<Order> getAllOrders() {
-		return orderRepository.findAll();
+		List<Order> result = orderRepository.findAll().stream().filter(element -> element.getPaymentStatus().equals("PAID")).toList() ;
+	
+		System.out.println("Test");
+		return result ;
 	}
 
 	public Order getOrder(Long id) {

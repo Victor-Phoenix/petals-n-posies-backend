@@ -1,6 +1,7 @@
 package com.victor.petalsnposies.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +13,7 @@ import com.stripe.model.Event;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import com.victor.petalsnposies.model.Order;
+import com.victor.petalsnposies.model.OrderStatus;
 import com.victor.petalsnposies.repository.OrderRepository;
 
 @RestController
@@ -20,13 +22,15 @@ public class StripeWebhookController {
 
     @Autowired
     private OrderRepository orderRepository;
-
+    
+    @Value("${stripe.webhook.secret}")
+    private String endpointSecret;
+    
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(
             @RequestBody String payload,
             @RequestHeader("Stripe-Signature") String sigHeader) {
 
-        String endpointSecret = "whsec_6a11f428392a7240cfc78f95e71457abf23da8a501cab2f5831448ef7c3f7ebd"; // from Stripe dashboard
 
         Event event;
 
@@ -58,6 +62,7 @@ public class StripeWebhookController {
                 order.setShippingCity(shippingCity);
                 order.setShippingState(shippingState);
                 order.setShippingPostalCode(shippingPostalCode);
+                order.setOrderStatus(OrderStatus.PENDING);
                 
                 if (order != null) {
                     order.setPaymentStatus("PAID");
