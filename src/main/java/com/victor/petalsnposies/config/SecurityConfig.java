@@ -3,6 +3,7 @@ package com.victor.petalsnposies.config;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +29,12 @@ public class SecurityConfig {
 	@Autowired
 	private JwtFilter jwtFilter;
 	
+	
+	@Value("${user.username}")
+	private String username;
+	
+	@Value("${user.password}")
+	private String password;
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
 		http
@@ -55,9 +62,7 @@ public class SecurityConfig {
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 	
 		return http.build();
-		//		http.authorizeHttpRequests((requests) ->
-//			requests.requestMatchers("/", "weddings-events" , "about").permitAll()r
-//				)
+
 	}
 	
 	@Bean 
@@ -70,8 +75,8 @@ public class SecurityConfig {
 	}
 	@Bean	
 	public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-		String password = encoder.encode("password");
-		UserDetails user = User.builder().username("victor").password(password).build();
+		String passcode= encoder.encode(password);
+		UserDetails user = User.builder().username(username).password(passcode).build();
 		return new InMemoryUserDetailsManager(user);
 	}
 }

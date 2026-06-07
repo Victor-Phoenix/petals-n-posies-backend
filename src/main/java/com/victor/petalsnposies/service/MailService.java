@@ -41,8 +41,13 @@ public class MailService {
 		message.setFrom("victortran16@gmail.com");
 		message.setTo("victortran16@gmail.com");
 		System.out.println(body);
+		try {
+		    mailSender.send(message);
+		} catch (Exception e) {
+		    e.printStackTrace();
+		}
+
 	
-		mailSender.send(message);
 		
 	}
 	
