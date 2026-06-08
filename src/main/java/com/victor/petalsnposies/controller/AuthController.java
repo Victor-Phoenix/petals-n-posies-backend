@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +17,6 @@ import com.victor.petalsnposies.security.JwtUtil;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "*")
 public class AuthController {
 	
 	  @Autowired
@@ -39,5 +38,7 @@ public class AuthController {
 	        String token = jwtUtil.generateToken(request.getUsername());
 	        return ResponseEntity.ok(new LoginResponse(token));
 	    }
+	    
+	 
 	    
 }

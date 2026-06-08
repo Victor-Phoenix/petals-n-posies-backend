@@ -19,7 +19,6 @@ import com.victor.petalsnposies.service.FlowerService;
 
 @RestController
 @RequestMapping("/flower")
-@CrossOrigin(origins = "*")
 public class FlowerController {
 
 	

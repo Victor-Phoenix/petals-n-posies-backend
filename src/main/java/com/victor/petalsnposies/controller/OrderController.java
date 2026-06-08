@@ -21,7 +21,6 @@ import com.victor.petalsnposies.service.OrderService;
 
 @RestController
 @RequestMapping("/api/orders")
-@CrossOrigin(origins = "*")
 public class OrderController {
 
 	@Autowired

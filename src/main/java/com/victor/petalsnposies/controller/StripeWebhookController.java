@@ -30,7 +30,7 @@ public class StripeWebhookController {
     public ResponseEntity<String> handleWebhook(
             @RequestBody String payload,
             @RequestHeader("Stripe-Signature") String sigHeader) {
-
+    	System.out.println("WEBHOOK HIT");
 
         Event event;
 
@@ -47,11 +47,13 @@ public class StripeWebhookController {
             Session.CollectedInformation collected = session.getCollectedInformation();
             System.out.println("Webhook session ID: " + session.getId());	
             Session.CustomerDetails customerDetails = session.getCustomerDetails();
+            
             String customerName = customerDetails.getName();
             String shippingAddress = collected.getShippingDetails().getAddress().getLine1();
             String shippingCity= collected.getShippingDetails().getAddress().getCity();
             String shippingState= collected.getShippingDetails().getAddress().getState();
             String shippingPostalCode = collected.getShippingDetails().getAddress().getPostalCode();
+            String phoneNumer =customerDetails.getPhone();
             System.out.printf("Name %s%n Address %s%n City %s%n State %s%n Postal %s%n " , customerName, shippingAddress, shippingCity, shippingState, shippingPostalCode);
             
             if (session != null) {
@@ -62,6 +64,7 @@ public class StripeWebhookController {
                 order.setShippingCity(shippingCity);
                 order.setShippingState(shippingState);
                 order.setShippingPostalCode(shippingPostalCode);
+                order.setPhoneNumber(phoneNumer);
                 order.setOrderStatus(OrderStatus.PENDING);
                 
                 if (order != null) {

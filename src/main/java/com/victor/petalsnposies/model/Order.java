@@ -42,7 +42,6 @@ public class Order {
 	private String shippingCity;
 	private String shippingState;
 	private String shippingPostalCode;
-	private String shippingCountry;
 	private String phoneNumber;
 	
 	

@@ -4,6 +4,9 @@ import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,7 +45,14 @@ public class JwtFilter extends OncePerRequestFilter {
         // 2. check it starts with "Bearer "
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7); // strip "Bearer "
+            try {
+            	
             username = jwtUtil.extractUsername(token);
+            }catch(ExpiredJwtException err) {
+            	 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            	 response.getWriter().write("Token expired");
+            	 return;
+            }
         }
 
         // 3. if we got a username and no auth is set yet

@@ -12,7 +12,6 @@ import com.victor.petalsnposies.service.MailService;
 
 @RestController()
 @RequestMapping("/api/email")
-@CrossOrigin(origins = "*")
 public class EmailController {
 	@Autowired 
 	private 	MailService mailService;
