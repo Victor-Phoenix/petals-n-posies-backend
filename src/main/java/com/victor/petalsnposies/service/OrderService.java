@@ -4,6 +4,7 @@ package com.victor.petalsnposies.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.stripe.model.checkout.Session;
@@ -21,7 +22,9 @@ import com.victor.petalsnposies.repository.OrderRepository;
 @Service
 
 public class OrderService {
-
+	@Value("${app.frontend.url}")
+	private String frontendUrl;
+	
 	private final OrderRepository orderRepository;
 	private final FlowerRepository flowerRepository;
 	public OrderService(OrderRepository orderRepository, FlowerRepository flowerRepository) {
@@ -29,17 +32,16 @@ public class OrderService {
 		this.flowerRepository = flowerRepository;
 	}	
 
+	
 	private String createStripeCheckoutSession(Order order) {
 		try {
 			SessionCreateParams.Builder builder = SessionCreateParams.builder()
 					.setMode(SessionCreateParams.Mode.PAYMENT)
-					.setSuccessUrl("http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}")
-					.setCancelUrl("http://localhost:5173/cancel")
+					.setSuccessUrl(frontendUrl+ "/success?session_id={CHECKOUT_SESSION_ID}")
+					.setCancelUrl(frontendUrl+"/cancel")
 					.setBillingAddressCollection(BillingAddressCollection.REQUIRED)
 					.setShippingAddressCollection(SessionCreateParams.ShippingAddressCollection.builder().addAllowedCountry(AllowedCountry.US).build());
-			builder.setAutomaticTax(SessionCreateParams.AutomaticTax.builder()
-					.setEnabled(true)
-					.build());
+			builder.setAutomaticTax(SessionCreateParams.AutomaticTax.builder().setEnabled(true).build());
 			builder.setPhoneNumberCollection(SessionCreateParams.PhoneNumberCollection.builder().setEnabled(true).build());
 
 
