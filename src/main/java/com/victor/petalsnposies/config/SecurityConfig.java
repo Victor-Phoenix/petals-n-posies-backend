@@ -44,7 +44,7 @@ public class SecurityConfig {
 	                "http://localhost:5173",
 	                "https://petals-n-posies.vercel.app"
 	            ));
-	            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+	            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE","PATCH"));
 	            config.setAllowedHeaders(List.of("*"));
 	            return config;
 	        }))
