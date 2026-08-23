@@ -149,5 +149,7 @@ public class OrderService {
 
 		return res;
 	}
-	
+	public Order save(Order order) {
+		return orderRepository.save(order);
+	}
 }

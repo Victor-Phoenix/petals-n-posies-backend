@@ -53,13 +53,13 @@ public class OrderController {
 		return ResponseEntity.ok(orders);
 	}
 	
-	@PatchMapping("/setOrderStatus-{id}")
+	@PatchMapping("/setOrderStatus/{id}")
 	public ResponseEntity<Order> setOrderStatus(@PathVariable Long id, @RequestBody Map<String,String> body){
 		Order order = orderService.getOrder(id);
 		String status = body.get("status");
 		order.setOrderStatus(OrderStatus.valueOf(status));
 //		Create a save function in service to save object. 
-//		orderService.save(order);
-		return null;
+		Order saved = orderService.save(order);
+		return ResponseEntity.ok(saved);
 	}
 }

@@ -33,7 +33,7 @@ public class Order {
 	private Double totalPrice;
 	
 	@Enumerated(EnumType.STRING)
-	private OrderStatus 	OrderStatus;
+	private OrderStatus orderStatus;
 	
 	@Column(name = "stripe_session_id")
 	private String stripeSessionId;
