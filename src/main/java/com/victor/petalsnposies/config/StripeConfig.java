@@ -9,7 +9,7 @@ public class StripeConfig {
     private String stripeSecretKey;
     @PostConstruct
     public void init() {
-    	  System.out.println("Stripe key starts with: " + stripeSecretKey.substring(0, 15));
         Stripe.apiKey = stripeSecretKey;
+        
     }
 }
